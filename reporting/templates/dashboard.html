@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmacy KPI Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { max-width: 1200px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1, h2 { color: #0056b3; }
+        .kpi-section { margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
+        .kpi-section:last-child { border-bottom: none; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .alert { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Pharmacy KPI Dashboard</h1>
+
+        <div class="kpi-section">
+            <h2>Total Sales Value</h2>
+            <p><strong>Value:</strong> {{ '%.2f' % sales_value.total_sales_value if sales_value else 'N/A' }}</p>
+        </div>
+
+        <div class="kpi-section">
+            <h2>Cash Reconciliation</h2>
+            {% if cash_reconciliation %}
+                <p><strong>Total Sales:</strong> {{ '%.2f' % cash_reconciliation.total_sales_value }}</p>
+                <p><strong>Total Cash Received:</strong> {{ '%.2f' % cash_reconciliation.total_cash_received }}</p>
+                <p><strong>Discrepancy:</strong> {{ '%.2f' % cash_reconciliation.discrepancy }}
+                    {% if cash_reconciliation.discrepancy != 0 %}
+                        <span class="alert">(Alert: Discrepancy detected!)</span>
+                    {% endif %}
+                </p>
+            {% else %}
+                <p>N/A</p>
+            {% endif %}
+        </div>
+
+        <div class="kpi-section">
+            <h2>Rx Volume</h2>
+            <p><strong>Total Rx Quantity Sold:</strong> {{ rx_volume.total_rx_volume if rx_volume else 'N/A' }}</p>
+        </div>
+
+        <div class="kpi-section">
+            <h2>Top Sellers (by Sales Value)</h2>
+            {% if top_sellers %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product ID</th>
+                            <th>Product Name</th>
+                            <th>Total Sales Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in top_sellers %}
+                            <tr>
+                                <td>{{ item.product_id }}</td>
+                                <td>{{ item.product_name }}</td>
+                                <td>{{ '%.2f' % item.total_sales_value }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No top sellers found.</p>
+            {% endif %}
+        </div>
+
+        <div class="kpi-section">
+            <h2>Near Expiries (within 30 days)</h2>
+            {% if near_expiries %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product ID</th>
+                            <th>Product Name</th>
+                            <th>Expiration Date</th>
+                            <th>Days to Expiry</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in near_expiries %}
+                            <tr>
+                                <td>{{ item.product_id }}</td>
+                                <td>{{ item.product_name }}</td>
+                                <td>{{ item.expiration_date }}</td>
+                                <td>{{ item.days_to_expiry }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No products near expiry.</p>
+            {% endif %}
+        </div>
+
+        <div class="kpi-section">
+            <h2>Stock-Out Events</h2>
+            {% if stock_outs %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Product ID</th>
+                            <th>Product Name</th>
+                            <th>Quantity Sold During Stock-Out</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in stock_outs %}
+                            <tr>
+                                <td>{{ item.date }}</td>
+                                <td>{{ item.product_id }}</td>
+                                <td>{{ item.product_name }}</td>
+                                <td>{{ item.quantity_sold_during_stock_out }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No stock-out events recorded.</p>
+            {% endif %}
+        </div>
+
+        <div class="kpi-section">
+            <h2>Inventory Levels</h2>
+            {% if inventory_levels %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product ID</th>
+                            <th>Product Name</th>
+                            <th>Initial Inventory</th>
+                            <th>Quantity Sold (Total)</th>
+                            <th>Current Inventory</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in inventory_levels %}
+                            <tr>
+                                <td>{{ item.product_id }}</td>
+                                <td>{{ item.product_name }}</td>
+                                <td>{{ item.initial_inventory }}</td>
+                                <td>{{ item.quantity_sold_total }}</td>
+                                <td>{{ item.current_inventory }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No inventory level data available.</p>
+            {% endif %}
+        </div>
+
+    </div>
+</body>
+</html>
