@@ -3,7 +3,7 @@ from typing import Dict, Any
 from motor.motor_asyncio import AsyncIOMotorClient
 from dependencies import get_db_collection
 from services.calculations import calculate_rx_volume
-from datetime import date
+from datetime import datetime # Import datetime
 
 router = APIRouter(
     prefix="/rx-volume",
@@ -19,11 +19,13 @@ async def get_rx_volume(
     Retrieves the total prescription (Rx) volume.
     """
     data = await collection.find().to_list(length=None)
-    # Convert date strings back to date objects if necessary for calculations
+    # Convert date strings back to datetime objects if necessary for calculations
     for item in data:
-        if isinstance(item.get('date'), str):
-            item['date'] = date.fromisoformat(item['date'].split('T')[0])
-        if isinstance(item.get('expiration_date'), str):
-            item['expiration_date'] = date.fromisoformat(item['expiration_date'].split('T')[0])
+        if isinstance(item.get('Date'), str):
+            item['Date'] = datetime.fromisoformat(item['Date'].split('T')[0])
+        if isinstance(item.get('Expiration_Date'), str):
+            item['Expiration_Date'] = datetime.fromisoformat(item['Expiration_Date'].split('T')[0])
 
-    return calculate_rx_volume(data)
+    result = calculate_rx_volume(data)
+    result["description"] = f"Total Rx volume: {result.get('total_rx_volume', 0):.2f}."
+    return result

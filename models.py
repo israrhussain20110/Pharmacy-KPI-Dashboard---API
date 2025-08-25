@@ -1,30 +1,32 @@
 from pydantic import BaseModel, Field
-from datetime import date
+from datetime import datetime # Use datetime for ISO format
 from typing import Optional
 
 class KPIData(BaseModel):
-    date: date
-    product_id: str
-    product_name: str
-    category: str
-    initial_inventory: int
-    quantity_sold: int
-    price_per_unit: float
-    cash_received: float
-    expiration_date: date
+    Date: datetime
+    Product_ID: str
+    Product_Name: str
+    Category: str
+    Inventory_Level: int
+    Quantity_Sold: int
+    Price: float
+    Sales_Value: float
+    Cash_Received: float
+    Expiration_Date: datetime
 
     class Config:
         json_schema_extra = {
             "example": {
-                "date": "2025-08-25",
-                "product_id": "PROD001",
-                "product_name": "Product A",
-                "category": "OTC",
-                "initial_inventory": 100,
-                "quantity_sold": 10,
-                "price_per_unit": 15.50,
-                "cash_received": 155.00,
-                "expiration_date": "2026-08-25"
+                "Date": "2025-08-25T00:00:00",
+                "Product_ID": "PROD001",
+                "Product_Name": "Product A",
+                "Category": "OTC",
+                "Inventory_Level": 100,
+                "Quantity_Sold": 10,
+                "Price": 15.50,
+                "Sales_Value": 155.00,
+                "Cash_Received": 155.00,
+                "Expiration_Date": "2026-08-25T00:00:00"
             }
         }
 

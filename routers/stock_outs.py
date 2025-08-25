@@ -3,7 +3,7 @@ from typing import List, Dict, Any
 from motor.motor_asyncio import AsyncIOMotorClient
 from dependencies import get_db_collection
 from services.calculations import calculate_stock_outs
-from datetime import date
+from datetime import datetime # Import datetime
 
 router = APIRouter(
     prefix="/stock-outs",
@@ -19,11 +19,18 @@ async def get_stock_outs(
     Retrieves records of stock-out events.
     """
     data = await collection.find().to_list(length=None)
-    # Convert date strings back to date objects if necessary for calculations
+    # Convert date strings back to datetime objects if necessary for calculations
     for item in data:
-        if isinstance(item.get('date'), str):
-            item['date'] = date.fromisoformat(item['date'].split('T')[0])
-        if isinstance(item.get('expiration_date'), str):
-            item['expiration_date'] = date.fromisoformat(item['expiration_date'].split('T')[0])
+        if isinstance(item.get('Date'), str):
+            item['Date'] = datetime.fromisoformat(item['Date'].split('T')[0])
+        if isinstance(item.get('Expiration_Date'), str):
+            item['Expiration_Date'] = datetime.fromisoformat(item['Expiration_Date'].split('T')[0])
 
-    return calculate_stock_outs(data)
+    results = calculate_stock_outs(data)
+    for item in results:
+        item["description"] = (
+            f"Stock-out for {item.get('product_name', 'N/A')} (ID: {item.get('product_id', 'N/A')}) "
+            f"on {item.get('date', datetime.min).strftime('%Y-%m-%d')}. "
+            f"Quantity sold during stock-out: {item.get('quantity_sold_during_stock_out', 0)}."
+        )
+    return results

@@ -1,3 +1,11 @@
+import sys
+import os
+
+# Add the project root to the Python path
+script_dir = os.path.dirname(__file__)
+project_root = os.path.abspath(os.path.join(script_dir, '..'))
+sys.path.insert(0, project_root)
+
 import pandas as pd
 import asyncio
 from motor.motor_asyncio import AsyncIOMotorClient
