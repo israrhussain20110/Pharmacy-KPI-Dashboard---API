@@ -5,16 +5,16 @@
 {% block content %}
 <div class="row">
     <div class="col-md-4">
-        <div class="kpi-card">
-            <h2>Total Sales Value</h2>
+        <div class="kpi-card h-100">
+            <h2 class="fs-5">Total Sales Value</h2>
             <p class="text-muted fw-bold">Value:</p>
-            <p class="fs-5 fw-bold text-primary">{{ '%.2f' % sales_value.total_sales_value if sales_value else 'N/A' }}</p>
+            <p class="fs-6 fw-bold text-primary">{{ '%.2f' % sales_value.total_sales_value if sales_value else 'N/A' }}</p>
             <p class="text-muted small">{{ sales_value.description if sales_value and sales_value.description else 'N/A' }}</p>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="kpi-card">
-            <h2>Cash Reconciliation</h2>
+        <div class="kpi-card h-100">
+            <h2 class="fs-5">Cash Reconciliation</h2>
             {% if cash_reconciliation %}
                 <p class="text-muted fw-bold mb-0">Total Sales:</p>
                 <p class="fs-6 fw-bold text-primary mb-1">{{ '%.2f' % cash_reconciliation.total_sales_value }}</p>
@@ -33,10 +33,10 @@
         </div>
     </div>
     <div class="col-md-4">
-        <div class="kpi-card">
-            <h2>Rx Volume</h2>
+        <div class="kpi-card h-100">
+            <h2 class="fs-5">Rx Volume</h2>
             <p class="text-muted fw-bold">Total Rx Quantity Sold:</p>
-            <p class="fs-5 fw-bold text-primary">{{ rx_volume.total_rx_volume if rx_volume else 'N/A' }}</p>
+            <p class="fs-6 fw-bold text-primary">{{ rx_volume.total_rx_volume if rx_volume else 'N/A' }}</p>
             <p class="text-muted small">{{ rx_volume.description if rx_volume and rx_volume.description else 'N/A' }}</p>
         </div>
     </div>
