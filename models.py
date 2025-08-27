@@ -1,6 +1,19 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional, List
+from bson import ObjectId
+from pydantic_core import core_schema
+
+class PyObjectId(ObjectId):
+    @classmethod
+    def __get_pydantic_core_schema__(cls, source_type, handler):
+        return core_schema.json_or_python_schema(
+            json_schema=core_schema.str_schema(),
+            python_schema=core_schema.is_instance_schema(ObjectId),
+            serialization=core_schema.plain_serializer_function_ser_schema(
+                lambda x: str(x)
+            ),
+        )
 
 class KPIData(BaseModel):
     Date: datetime
@@ -31,7 +44,7 @@ class KPIData(BaseModel):
         }
 
 class KPIDataInDB(KPIData):
-    id: str = Field(alias="_id")
+    id: PyObjectId = Field(alias="_id")
 
 class DailyKPI(BaseModel):
     date: datetime
@@ -43,6 +56,15 @@ class DailyKPI(BaseModel):
     total_cash_reconciliation: float
     inventory_levels_top_sellers: List[dict]
     branch_id: Optional[int] = None
+    description: str
 
 class DailyKPIInDB(DailyKPI):
-    id: str = Field(alias="_id")
+    id: PyObjectId = Field(alias="_id")
+
+class NearExpiry(BaseModel):
+    date: datetime
+    product_id: str
+    product_name: str
+    expiration_date: datetime
+    days_to_expiry: int
+    description: str

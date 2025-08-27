@@ -37,7 +37,7 @@ def calculate_near_expiries(data: List[Dict[str, Any]], days_threshold: int = 30
             if exp_date - today <= timedelta(days=days_threshold) and exp_date >= today:
                 near_expiries.append({
                     "date": record.get('Date'),
-                    "product_id": record.get('Product_ID'),
+                    "product_id": str(record.get('Product_ID')),
                     "product_name": record.get('Product_Name'),
                     "expiration_date": record.get('Expiration_Date'),
                     "days_to_expiry": (exp_date - today).days

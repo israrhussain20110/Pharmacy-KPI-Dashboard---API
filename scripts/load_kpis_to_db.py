@@ -19,9 +19,10 @@ async def load_kpis_to_db():
     client = AsyncIOMotorClient(settings.DATABASE_URL)
     db = client[settings.DATABASE_NAME]
     kpi_collection = db["daily_kpis"]
+    await kpi_collection.delete_many({})
 
     try:
-        df = pd.read_csv('c:\\Users\\Ahmed\\DEV PROJECTS\\pharmacy-kpi\\data\\all_in_one_kpi_dataset.csv')
+        df = pd.read_csv(r'c:\Users\Ahmed\DEV PROJECTS\pharmacy-kpi\data\all_in_one_kpi_dataset.csv')
     except FileNotFoundError:
         print("Error: The CSV file was not found.")
         return
@@ -42,6 +43,12 @@ async def load_kpis_to_db():
             total_sales = daily_data['Sales_Value'].sum()
             cash_reconciliation = daily_data['Cash_Received'].sum() - total_sales
 
+            description = (
+                f"Daily KPI report for {date.strftime('%Y-%m-%d')}. "
+                f"Total sales: ${total_sales:.2f}, Rx volume: {int(rx_volume)} units, "
+                f"Stockouts: {len(stockouts)} products, Near expiries: {len(near_expiries)} products."
+            )
+
             kpi_data = DailyKPI(
                 date=date,
                 total_stockouts=len(stockouts),
@@ -51,7 +58,8 @@ async def load_kpis_to_db():
                 total_sales_value=total_sales,
                 total_cash_reconciliation=cash_reconciliation,
                 inventory_levels_top_sellers=top_sellers[['Product_Name', 'Inventory_Level']].to_dict('records'),
-                branch_id=int(branch_id)
+                branch_id=int(branch_id),
+                description=description
             )
             await kpi_collection.insert_one(kpi_data.dict())
 

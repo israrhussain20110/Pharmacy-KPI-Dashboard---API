@@ -75,6 +75,15 @@ async def fetch_branch_comparison_data():
         print(f"Error fetching branch comparison data from FastAPI: {e}")
         return {}
 
+async def fetch_daily_kpis():
+    try:
+        response = requests.get(f"{FASTAPI_BASE_URL}/kpis/daily")
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching daily kpis from FastAPI: {e}")
+        return []
+
 @app.route('/')
 async def overview_dashboard():
     data = await fetch_kpi_data_for_overview()
@@ -94,6 +103,11 @@ async def products_dashboard():
 async def branches_dashboard():
     data = await fetch_branch_comparison_data()
     return render_template('branches.html', **data)
+
+@app.route('/daily_kpis')
+async def daily_kpis_dashboard():
+    data = await fetch_daily_kpis()
+    return render_template('daily_kpis.html', daily_kpis=data)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
