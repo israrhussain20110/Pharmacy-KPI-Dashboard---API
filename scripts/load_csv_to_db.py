@@ -23,6 +23,11 @@ async def load_csv_to_mongodb(csv_file_path: str):
         db = client[settings.DATABASE_NAME]
         collection = db[settings.COLLECTION_NAME]
 
+        # Create an index on branch_id for efficient queries
+        print("Creating index on 'branch_id'...")
+        await collection.create_index("branch_id", background=True)
+        print("Index created on 'branch_id'.")
+
         print(f"Reading CSV from {csv_file_path}...")
         df = pd.read_csv(csv_file_path)
 

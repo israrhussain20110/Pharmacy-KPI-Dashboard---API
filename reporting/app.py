@@ -66,6 +66,15 @@ async def fetch_kpi_data_for_products():
         }
     return kpi_data
 
+async def fetch_branch_comparison_data():
+    try:
+        response = requests.get(f"{FASTAPI_BASE_URL}/branches/compare")
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching branch comparison data from FastAPI: {e}")
+        return {}
+
 @app.route('/')
 async def overview_dashboard():
     data = await fetch_kpi_data_for_overview()
@@ -80,6 +89,11 @@ async def inventory_dashboard():
 async def products_dashboard():
     data = await fetch_kpi_data_for_products()
     return render_template('products.html', **data)
+
+@app.route('/branches')
+async def branches_dashboard():
+    data = await fetch_branch_comparison_data()
+    return render_template('branches.html', **data)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

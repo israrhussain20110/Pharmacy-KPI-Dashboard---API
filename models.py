@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
-from datetime import datetime # Use datetime for ISO format
-from typing import Optional
+from datetime import datetime
+from typing import Optional, List
 
 class KPIData(BaseModel):
     Date: datetime
@@ -31,4 +31,18 @@ class KPIData(BaseModel):
         }
 
 class KPIDataInDB(KPIData):
+    id: str = Field(alias="_id")
+
+class DailyKPI(BaseModel):
+    date: datetime
+    total_stockouts: int
+    total_near_expiries: int
+    top_sellers: List[dict]
+    total_rx_volume: int
+    total_sales_value: float
+    total_cash_reconciliation: float
+    inventory_levels_top_sellers: List[dict]
+    branch_id: Optional[int] = None
+
+class DailyKPIInDB(DailyKPI):
     id: str = Field(alias="_id")

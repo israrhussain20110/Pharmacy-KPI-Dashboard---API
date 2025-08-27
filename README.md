@@ -10,9 +10,60 @@ A comprehensive system designed to track, analyze, and visualize key performance
 ## ✨ Features
 
 * **API Endpoints:** Provides a rich set of API endpoints to access calculated KPIs, including sales value, prescription volume, inventory levels, stock-outs, near expiries, cash reconciliation, and top sellers.
+* **KPI Analysis API:** A dedicated set of endpoints for in-depth KPI analysis, including daily KPIs, trends, and alerts.
 * **Efficient Data Processing:** Leverages Pandas and NumPy for high-performance data loading and preprocessing from CSV files into a MongoDB database.
 * **Interactive Web Dashboard:** A simple yet effective web interface (built with Flask and Jinja2) to present key pharmacy metrics in an easily digestible format.
 * **Modular Architecture:** Organized into distinct modules for API routers, data processing services, and a dedicated script for seamless data ingestion, promoting maintainability and scalability.
+
+## 🌐 Multi-Branch Analysis (Planned Extension)
+
+This feature will extend the Pharmacy KPI Project to support operations across multiple pharmacy branches, allowing for comparative insights and optimization at a network level.
+
+### Detailed Explanation of the Multi-Branch Analysis Extension
+
+Multi-Branch Analysis will introduce the ability to track and compare KPIs across different branches. Key components include:
+
+* **Performance Comparison:** Aggregate and contrast metrics like sales, inventory turns, and service levels.
+* **Transfer Efficiency:** Monitor inter-branch inventory transfers, evaluating volume, time, cost, and success rate.
+* **Identification of Over/Under-Stocked Branches:** Flag branches with excess inventory or shortages using data-driven thresholds.
+
+The extension will build on the existing synthetic dataset by adding a "Branch_ID" or "Branch_Name" field to each record. This will turn the project into a more robust enterprise tool.
+
+### Key Problems and Their Outcomes
+
+This extension targets key challenges faced by multi-branch pharmacies:
+
+* **Uneven Performance Across Branches:**
+  * **Problem:** Lack of visibility into why some branches underperform.
+  * **Outcomes if Unaddressed:** Inconsistent revenue, inefficient resource allocation, and poor service levels, leading to lost market share.
+  * **Mitigation:** Comparative dashboards will highlight variances, enabling targeted interventions.
+* **Inefficient Inter-Branch Transfers:**
+  * **Problem:** Ad-hoc inventory transfers leading to delays and higher costs.
+  * **Outcomes if Unaddressed:** Increased waste from expiries, elevated transportation costs, and supply chain bottlenecks.
+  * **Mitigation:** Metrics on transfer success and efficiency will allow for optimization and automation.
+* **Over/Under-Stocked Branches:**
+  * **Problem:** Lack of centralized monitoring leading to inventory imbalances.
+  * **Outcomes if Unaddressed:** Tied-up capital in over-stocked branches and lost sales from under-stocking.
+  * **Mitigation:** Automated flagging of inventory imbalances to support rebalancing.
+
+### How It Will Be Implemented
+
+1. **Data Model and Dataset Updates:**
+    * Enhance the dataset with a "Branch_ID" and simulate data variations between branches.
+    * Update the MongoDB schema to index on "Branch_ID".
+2. **API and Router Enhancements:**
+    * Add branch query parameters to existing endpoints (e.g., `GET /metrics/sales-value?branch_id=1`).
+    * Create new endpoints for performance comparison (e.g., `GET /branches/compare`).
+    * Introduce endpoints to manage and analyze inventory transfers.
+3. **Business Logic and Services Layer:**
+    * Extend calculation functions to group by branch.
+    * Add logic for transfer efficiency scoring.
+4. **Dashboard and Reporting Updates:**
+    * Modify the dashboard to display comparative views and alerts.
+    * Add new visualizations for multi-branch trends.
+5. **Testing and Integration:**
+    * Update tests to cover multi-branch scenarios.
+    * Ensure the system is scalable for a large number of branches.
 
 ## 🚀 Technologies Used
 
@@ -84,7 +135,13 @@ The project includes a convenient script to load your initial CSV data into Mong
 python scripts/load_csv_to_db.py
 ```
 
-*Note: If your CSV file has a different name or structure, you may need to modify `scripts/load_csv_to_db.py` accordingly.*
+To calculate and load the daily KPIs into the database, run the following script:
+
+```bash
+python scripts/load_kpis_to_db.py
+```
+
+*Note: If your CSV file has a different name or structure, you may need to modify the scripts accordingly.*
 
 ### 2. Running the FastAPI Application
 
@@ -119,11 +176,21 @@ The API is structured with various endpoints, each dedicated to a specific categ
 * `/cash_reconciliation`: Insights into cash flow and reconciliation.
 * `/top_sellers`: Identification of best-selling products.
 
+#### KPI Analysis Endpoints
+
+* `/kpis/daily`: Retrieves the daily KPIs for all branches.
+* `/kpis/daily/{branch_id}`: Retrieves the daily KPIs for a specific branch.
+* `/kpis/trends`: Provides a trend analysis of KPIs for the last 7 days.
+* `/kpis/trends/{branch_id}`: Provides a trend analysis for a specific branch.
+* `/kpis/alerts`: Shows alerts for KPIs that have crossed a certain threshold (e.g., stockouts).
+* `/kpis/alerts/{branch_id}`: Shows alerts for a specific branch.
+
 For detailed information on each endpoint, including request/response schemas, please refer to the interactive API documentation at `http://localhost:8000/docs`.
 
 ## 📂 Project Structure
 
 ```directory
+
 .
 ├── .env                      # Environment variables for database connection
 ├── api_descriptions.json     # (Optional) API endpoint descriptions

@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends
-from typing import Dict, Any
+from fastapi import APIRouter, Depends, Query
+from typing import Dict, Any, Optional
 from motor.motor_asyncio import AsyncIOMotorClient
 from dependencies import get_db_collection
 from services.calculations import calculate_cash_reconciliation
@@ -13,18 +13,17 @@ router = APIRouter(
 
 @router.get("/", response_model=Dict[str, Any])
 async def get_cash_reconciliation(
-    collection: AsyncIOMotorClient = Depends(get_db_collection)
+    collection: AsyncIOMotorClient = Depends(get_db_collection),
+    branch_id: Optional[int] = Query(None, description="Filter by Branch ID")
 ):
     """
-    Compares total sales value with total cash received.
+    Compares total sales value with total cash received, optionally filtered by branch.
     """
-    data = await collection.find().to_list(length=None)
-    # Convert date strings back to datetime objects if necessary for calculations
-    for item in data:
-        if isinstance(item.get('Date'), str):
-            item['Date'] = datetime.fromisoformat(item['Date'].split('T')[0])
-        if isinstance(item.get('Expiration_Date'), str):
-            item['Expiration_Date'] = datetime.fromisoformat(item['Expiration_Date'].split('T')[0])
+    query = {}
+    if branch_id is not None:
+        query["branch_id"] = branch_id
+
+    data = await collection.find(query).to_list(length=None)
 
     result = calculate_cash_reconciliation(data)
     result["description"] = (
@@ -32,4 +31,6 @@ async def get_cash_reconciliation(
         f"Total cash received: {result.get('total_cash_received', 0):.2f}, "
         f"Discrepancy: {result.get('discrepancy', 0):.2f}."
     )
+    if branch_id is not None:
+        result["description"] += f" (Branch ID: {branch_id})"
     return result

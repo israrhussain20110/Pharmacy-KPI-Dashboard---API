@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends
-from typing import List, Dict, Any
+from fastapi import APIRouter, Depends, Query
+from typing import List, Dict, Any, Optional
 from motor.motor_asyncio import AsyncIOMotorClient
 from dependencies import get_db_collection
 from services.calculations import calculate_inventory_levels
@@ -13,18 +13,17 @@ router = APIRouter(
 
 @router.get("/", response_model=List[Dict[str, Any]])
 async def get_inventory_levels(
-    collection: AsyncIOMotorClient = Depends(get_db_collection)
+    collection: AsyncIOMotorClient = Depends(get_db_collection),
+    branch_id: Optional[int] = Query(None, description="Filter by Branch ID")
 ):
     """
-    Retrieves current inventory levels for all products.
+    Retrieves current inventory levels for all products, optionally filtered by branch.
     """
-    data = await collection.find().to_list(length=None)
-    # Convert date strings back to datetime objects if necessary for calculations
-    for item in data:
-        if isinstance(item.get('Date'), str):
-            item['Date'] = datetime.fromisoformat(item['Date'].split('T')[0])
-        if isinstance(item.get('Expiration_Date'), str):
-            item['Expiration_Date'] = datetime.fromisoformat(item['Expiration_Date'].split('T')[0])
+    query = {}
+    if branch_id is not None:
+        query["branch_id"] = branch_id
+
+    data = await collection.find(query).to_list(length=None)
 
     results = calculate_inventory_levels(data)
     for item in results:
@@ -34,4 +33,6 @@ async def get_inventory_levels(
             f"Total Sold: {item.get('quantity_sold_total', 0)}, "
             f"Current Inventory: {item.get('current_inventory', 0)}."
         )
+        if branch_id is not None:
+            item["description"] += f" (Branch ID: {branch_id})"
     return results
