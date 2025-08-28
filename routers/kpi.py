@@ -1,10 +1,11 @@
 '''
 This router handles the API endpoints for KPIs.
 '''
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from services.kpi_service import kpi_service, KPIService
 from models import DailyKPIInDB
-from typing import List
+from typing import List, Optional
+from datetime import date
 
 router = APIRouter(
     prefix="/kpis",
@@ -12,12 +13,13 @@ router = APIRouter(
 )
 
 @router.get("/daily", response_model=List[DailyKPIInDB])
-async def get_daily_kpis(service: KPIService = Depends(lambda: kpi_service)):
-    return await service.get_daily_kpis()
-
-@router.get("/daily/{branch_id}", response_model=List[DailyKPIInDB])
-async def get_daily_kpis_by_branch(branch_id: int, service: KPIService = Depends(lambda: kpi_service)):
-    return await service.get_daily_kpis(branch_id)
+async def get_daily_kpis(
+    service: KPIService = Depends(lambda: kpi_service),
+    start_date: Optional[date] = Query(None, description="Start date for KPI data (YYYY-MM-DD)"),
+    end_date: Optional[date] = Query(None, description="End date for KPI data (YYYY-MM-DD)"),
+    branch_id: Optional[int] = Query(None, description="Branch ID for KPI data"),
+):
+    return await service.get_daily_kpis(branch_id=branch_id, start_date=start_date, end_date=end_date)
 
 @router.get("/trends", response_model=List[DailyKPIInDB])
 async def get_kpi_trends(service: KPIService = Depends(lambda: kpi_service)):

@@ -6,11 +6,17 @@ from models import DailyKPIInDB
 from datetime import datetime, timedelta
 
 class KPIService:
-    async def get_daily_kpis(self, branch_id: int = None):
+    async def get_daily_kpis(self, branch_id: int = None, start_date: datetime = None, end_date: datetime = None):
         db = await get_database()
         query = {}
         if branch_id:
             query["branch_id"] = branch_id
+        if start_date and end_date:
+            query["date"] = {"$gte": start_date, "$lte": end_date}
+        elif start_date:
+            query["date"] = {"$gte": start_date}
+        elif end_date:
+            query["date"] = {"$lte": end_date}
         kpis = await db["daily_kpis"].find(query).to_list(1000)
         return [DailyKPIInDB(**kpi) for kpi in kpis]
 
